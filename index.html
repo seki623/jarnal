@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Trade Log</title>
+    <title>Dark Trade Log Premium</title>
     <style>
         /* 基本のカラー設定：背景は黒、基本文字は白 */
         :root {
@@ -14,12 +14,15 @@
             --border-color: #333333;
             --input-bg: #2d2d2d;
             
-            /* ご指定のアクセントカラー */
-            --color-long: #3182ce;   /* ロング：青 */
-            --color-short: #e53e3e;  /* ショート：赤 */
-            --color-win: #38a169;    /* 勝ち：緑 */
-            --color-lose: #e53e3e;   /* 負け：赤 */
-            --color-draw: #718096;   /* 建値：グレー */
+            /* アクセントカラー（ご指定：陽線＝緑 / 陰線＝赤） */
+            --color-yang: #38a169;    /* 陽線：緑 */
+            --color-yin: #e53e3e;     /* 陰線：赤 */
+            
+            --color-long: #3182ce;    /* ロング：青 */
+            --color-short: #e53e3e;   /* ショート：赤 (陰線と統一) */
+            --color-win: #38a169;     /* 勝ち：緑 (陽線と統一) */
+            --color-lose: #e53e3e;    /* 負け：赤 */
+            --color-draw: #718096;    /* 建値：グレー */
         }
 
         body {
@@ -110,6 +113,7 @@
         .flex-row {
             display: flex;
             gap: 10px;
+            margin-bottom: 10px;
         }
         .flex-row .form-group {
             flex: 1;
@@ -124,13 +128,13 @@
         }
         .select-btn {
             flex: 1;
-            min-width: 80px;
-            padding: 12px;
+            min-width: 70px;
+            padding: 10px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: var(--text-color);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
@@ -138,7 +142,7 @@
         }
         .select-btn:hover { opacity: 0.8; }
 
-        /* ボタンが選択された際の色指定 */
+        /* ボタン選択時のアクティブカラー（陽線＝緑 / 陰線＝赤） */
         .select-btn.active[data-type="pair"],
         .select-btn.active[data-type="market"] { background-color: #4a5568; border-color: #a0aec0; }
         .select-btn.active[data-val="Long"] { background-color: var(--color-long); border-color: #63b3ed; }
@@ -147,6 +151,13 @@
         .select-btn.active[data-val="負け"] { background-color: var(--color-lose); border-color: #fc8181; }
         .select-btn.active[data-val="建値"] { background-color: var(--color-draw); border-color: #cbd5e0; }
         .select-btn.active[data-type="emotion"] { background-color: #b7791f; border-color: #ecc94b; }
+        
+        /* 環境認識・目線用カラー指定（ご希望の配色へ統一） */
+        .select-btn.active[data-val="陽線"] { background-color: var(--color-yang); border-color: #68d391; }
+        .select-btn.active[data-val="陰線"] { background-color: var(--color-yin); border-color: #fc8181; }
+        .select-btn.active[data-val="ロング"] { background-color: var(--color-long); border-color: #63b3ed; }
+        .select-btn.active[data-val="ショート"] { background-color: var(--color-short); border-color: #fc8181; }
+        .select-btn.active[data-val="レンジ"] { background-color: var(--color-draw); border-color: #cbd5e0; }
 
         #customPairInput { margin-top: 8px; display: none; }
 
@@ -211,18 +222,20 @@
             margin-bottom: 15px;
         }
         .card-row1 { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
-        .card-row2 { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
+        .card-row2 { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
         .badge.Long { background-color: var(--color-long); }
         .badge.Short { background-color: var(--color-short); }
         .badge.勝ち { background-color: var(--color-win); }
         .badge.負け { background-color: var(--color-lose); }
         .badge.建値 { background-color: var(--color-draw); }
-        .card-pair { font-size: 18px; font-weight: bold; }
-        .card-metrics { display: flex; gap: 15px; font-size: 14px; margin-bottom: 10px; background: #121212; padding: 8px; border-radius: 4px; }
+        .badge.env { background-color: #4a5568; color: #e2e8f0; }
+        .card-pair { font-size: 18px; font-weight: bold; margin-right: 5px; }
+        .card-metrics { display: flex; gap: 15px; font-size: 13px; margin-bottom: 8px; background: #121212; padding: 8px; border-radius: 4px; flex-wrap: wrap; }
+        .card-prices { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; padding: 0 4px; flex-wrap: wrap; }
         .card-memo { font-size: 13px; color: #dddddd; border-top: 1px solid #333; padding-top: 8px; word-break: break-all; margin-bottom: 10px; }
         
-        /* カード右下の操作ボタンエリア */
+        /* カード操作ボタンエリア */
         .card-footer {
             display: flex;
             justify-content: flex-end;
@@ -259,7 +272,7 @@
             margin: 5px;
         }
 
-        /* 統計画面用スタイル */
+        /* 統計画面 */
         .stat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -300,7 +313,9 @@
 
     <div id="tab-record" class="container active">
         <h1 id="formTitle">📊 新規トレード記録</h1>
-        <input type="hidden" id="editingId" value=""> <div class="flex-row">
+        <input type="hidden" id="editingId" value="">
+        
+        <div class="flex-row">
             <div class="form-group">
                 <label>日にち</label>
                 <input type="date" id="tradeDate">
@@ -349,6 +364,39 @@
 
         <div class="flex-row">
             <div class="form-group">
+                <label>月足</label>
+                <div class="btn-group" id="monthlyGroup">
+                    <button type="button" class="select-btn" data-type="monthly" data-val="陽線">陽線</button>
+                    <button type="button" class="select-btn" data-type="monthly" data-val="陰線">陰線</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>週足</label>
+                <div class="btn-group" id="weeklyGroup">
+                    <button type="button" class="select-btn" data-type="weekly" data-val="陽線">陽線</button>
+                    <button type="button" class="select-btn" data-type="weekly" data-val="陰線">陰線</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>日足</label>
+                <div class="btn-group" id="dailyGroup">
+                    <button type="button" class="select-btn" data-type="daily" data-val="陽線">陽線</button>
+                    <button type="button" class="select-btn" data-type="daily" data-val="陰線">陰線</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>目線</label>
+            <div class="btn-group" id="biasGroup">
+                <button type="button" class="select-btn" data-type="bias" data-val="ロング">ロング</button>
+                <button type="button" class="select-btn" data-type="bias" data-val="ショート">ショート</button>
+                <button type="button" class="select-btn" data-type="bias" data-val="レンジ">レンジ</button>
+            </div>
+        </div>
+
+        <div class="flex-row">
+            <div class="form-group">
                 <label>売買</label>
                 <div class="btn-group" id="sideGroup">
                     <button type="button" class="select-btn" data-type="side" data-val="Long">ロング</button>
@@ -367,12 +415,33 @@
 
         <div class="flex-row">
             <div class="form-group">
-                <label>ロット数</label>
-                <input type="number" id="lotInput" step="any" placeholder="0.1">
+                <label>Open 価格</label>
+                <input type="number" id="openPriceInput" step="any" placeholder="例: 3000.00" oninput="autoCalculatePips()">
             </div>
             <div class="form-group">
-                <label>獲得PIPS</label>
-                <input type="number" id="pipsInput" step="any" placeholder="10.5">
+                <label>Close 価格</label>
+                <input type="number" id="closePriceInput" step="any" placeholder="例: 3010.50" oninput="autoCalculatePips()">
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="form-group">
+                <label>TP 価格</label>
+                <input type="number" id="tpPriceInput" step="any" placeholder="例: 3050.00">
+            </div>
+            <div class="form-group">
+                <label>SL 価格</label>
+                <input type="number" id="slPriceInput" step="any" placeholder="例: 2980.00">
+            </div>
+        </div>
+
+        <div class="flex-row">
+            <div class="form-group">
+                <label>ロット数</label>
+                <input type="number" id="lotInput" step="any" placeholder="0.1" oninput="autoCalculatePips()">
+            </div>
+            <div class="form-group">
+                <label>獲得PIPS (自動計算・手動可)</label>
+                <input type="number" id="pipsInput" step="any" placeholder="自動計算されます">
             </div>
             <div class="form-group">
                 <label>損益額 (USD)</label>
@@ -454,7 +523,7 @@
             refreshApp();
         };
 
-        // タブ切り替えシステム
+        // タブ切り替え
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -467,43 +536,80 @@
             }
         }
 
-        // 新規追加のためにフォームを綺麗にしてからタブを移る
         function clearFormAndGoToRecord() {
             setFormToNewMode();
             switchTab('record');
         }
 
-        // ボタングループのactiveクラス管理
+        // ボタングループ管理
         function setupButtonGroups() {
             document.querySelectorAll('.btn-group').forEach(group => {
                 group.addEventListener('click', e => {
                     if (e.target.classList.contains('select-btn')) {
-                        group.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
-                        e.target.classList.add('active');
+                        // トグル選択処理（未選択を許可）
+                        if (e.target.classList.contains('active')) {
+                            e.target.classList.remove('active');
+                        } else {
+                            group.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
+                            e.target.classList.add('active');
+                        }
                         
                         if (e.target.getAttribute('data-type') === 'pair') {
                             const customInput = document.getElementById('customPairInput');
-                            if (e.target.getAttribute('data-val') === 'その他') {
+                            if (e.target.getAttribute('data-val') === 'その他' && e.target.classList.contains('active')) {
                                 customInput.style.display = 'block';
                             } else {
                                 customInput.style.display = 'none';
                             }
                         }
+
+                        // 結果や売買などの変動で自動PIPS計算をトリガー
+                        autoCalculatePips();
                     }
                 });
             });
         }
 
-        // 汎用ボタンアクティブ化用
         function activateButtonInGroup(groupId, value) {
             const group = document.getElementById(groupId);
+            if (!group) return;
             group.querySelectorAll('.select-btn').forEach(btn => {
-                if(btn.getAttribute('data-val') === value) {
+                if(value && btn.getAttribute('data-val') === value) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
+        }
+
+        // ─── 【修正：獲得PIPS数の自動計算ロジック (*100に変更)】 ───
+        function autoCalculatePips() {
+            const openVal = document.getElementById('openPriceInput').value;
+            const closeVal = document.getElementById('closePriceInput').value;
+            const lotVal = document.getElementById('lotInput').value;
+            const result = getSelectedVal('resultGroup');
+
+            // 必須数値が揃っていない場合は計算スキップ
+            if (openVal === "" || closeVal === "" || lotVal === "") {
+                return;
+            }
+
+            const openPrice = parseFloat(openVal);
+            const closePrice = parseFloat(closeVal);
+            const lot = parseFloat(lotVal);
+
+            // 絶対値の計算式を修正: |Close - Open| * (ロット数 * 100)
+            let pipsValue = Math.abs(closePrice - openPrice) * (lot * 100);
+
+            // 負けを選んだ場合はマイナスをつける
+            if (result === '負け') {
+                pipsValue = -Math.abs(pipsValue);
+            } else {
+                pipsValue = Math.abs(pipsValue);
+            }
+
+            // 小数点第2位までに丸めて代入
+            document.getElementById('pipsInput').value = parseFloat(pipsValue.toFixed(2));
         }
 
         // 時間変換 ＆ 市場自動判別
@@ -545,63 +651,63 @@
 
         function getSelectedVal(groupId) {
             const activeBtn = document.querySelector(`#${groupId} .select-btn.active`);
-            return activeBtn ? activeBtn.getAttribute('data-val') : null;
+            return activeBtn ? activeBtn.getAttribute('data-val') : "";
         }
 
-        // --- データ保存・更新処理 ---
+        // データ保存・更新
         function saveTradeLog() {
             const date = document.getElementById('tradeDate').value;
             const time = document.getElementById('tradeTime').value.trim();
-            const market = getSelectedVal('marketGroup');
             let pair = getSelectedVal('pairGroup');
-            const side = getSelectedVal('sideGroup');
-            const result = getSelectedVal('resultGroup');
-            const lot = document.getElementById('lotInput').value;
-            const pips = document.getElementById('pipsInput').value;
-            const pnl = document.getElementById('pnlInput').value;
-            const emotion = getSelectedVal('emotionGroup');
-            const memo = document.getElementById('memoInput').value.trim();
-            const editingId = document.getElementById('editingId').value;
-
-            const isCustomPair = (pair === 'その他');
-            if (isCustomPair) {
-                pair = document.getElementById('customPairInput').value.trim();
-            }
-
-            if (!date || !time || !pair || !side || !result || !emotion) {
-                alert("日にち、時間、通貨ペア、売買、結果、感情は必ず選択・入力してくださいね。");
+            
+            if (!date || !time || !pair) {
+                alert("日にち、時間、通貨ペアは必ず選んで入力してくださいね。");
                 return;
             }
+
+            if (pair === 'その他') {
+                pair = document.getElementById('customPairInput').value.trim() || "その他";
+            }
+
+            const editingId = document.getElementById('editingId').value;
+            const pips = document.getElementById('pipsInput').value;
+            const pnl = document.getElementById('pnlInput').value;
+
+            const logData = {
+                date,
+                time,
+                market: getSelectedVal('marketGroup') || "-",
+                pair,
+                monthly: getSelectedVal('monthlyGroup') || "-",
+                weekly: getSelectedVal('weeklyGroup') || "-",
+                daily: getSelectedVal('dailyGroup') || "-",
+                bias: getSelectedVal('biasGroup') || "-",
+                side: getSelectedVal('sideGroup') || "-",
+                result: getSelectedVal('resultGroup') || "-",
+                openPrice: document.getElementById('openPriceInput').value || "-",
+                closePrice: document.getElementById('closePriceInput').value || "-",
+                tpPrice: document.getElementById('tpPriceInput').value || "-",
+                slPrice: document.getElementById('slPriceInput').value || "-",
+                lot: document.getElementById('lotInput').value || "-",
+                pips: pips !== "" ? parseFloat(pips) : 0,
+                pnl: pnl !== "" ? parseFloat(pnl) : 0,
+                emotion: getSelectedVal('emotionGroup') || "-",
+                memo: document.getElementById('memoInput').value.trim() || "-"
+            };
 
             let trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
 
             if (editingId) {
-                // 【編集モード】の時：既存のデータを書き換えます
                 trades = trades.map(t => {
                     if (t.id === parseInt(editingId)) {
-                        return {
-                            ...t,
-                            date, time, market: market || "未設定", pair, side, result,
-                            lot: lot ? parseFloat(lot) : "-",
-                            pips: pips ? parseFloat(pips) : 0,
-                            pnl: pnl ? parseFloat(pnl) : 0,
-                            emotion, memo: memo || "-"
-                        };
+                        return { ...t, ...logData };
                     }
                     return t;
                 });
                 alert("記録を更新いたしましたわ！");
             } else {
-                // 【新規追加モード】の時：新しく先頭にデータを足します
-                const newLog = {
-                    id: Date.now(),
-                    date, time, market: market || "未設定", pair, side, result,
-                    lot: lot ? parseFloat(lot) : "-",
-                    pips: pips ? parseFloat(pips) : 0,
-                    pnl: pnl ? parseFloat(pnl) : 0,
-                    emotion, memo: memo || "-"
-                };
-                trades.unshift(newLog);
+                logData.id = Date.now();
+                trades.unshift(logData);
                 alert("トレードを保存いたしましたわ！");
             }
 
@@ -611,7 +717,6 @@
             switchTab('list');
         }
 
-        // フォームの状態を「新規追加用」に戻す関数
         function setFormToNewMode() {
             document.getElementById('editingId').value = "";
             document.getElementById('formTitle').innerText = "📊 新規トレード記録";
@@ -619,6 +724,10 @@
 
             document.getElementById('tradeTime').value = "";
             document.getElementById('foreignTimeInput').value = "";
+            document.getElementById('openPriceInput').value = "";
+            document.getElementById('closePriceInput').value = "";
+            document.getElementById('tpPriceInput').value = "";
+            document.getElementById('slPriceInput').value = "";
             document.getElementById('lotInput').value = "";
             document.getElementById('pipsInput').value = "";
             document.getElementById('pnlInput').value = "";
@@ -631,49 +740,52 @@
             document.getElementById('tradeDate').value = today;
         }
 
-        // --- 編集モードへの切り替え ---
+        // 編集モード
         function editTrade(id) {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
-            const target = trades.find(t => t.id === id);
-            if (!target) return;
+            const t = trades.find(item => item.id === id);
+            if (!t) return;
 
-            // フォームへ現在の値を復元しますわ
-            document.getElementById('editingId').value = target.id;
+            document.getElementById('editingId').value = t.id;
             document.getElementById('formTitle').innerText = "🔧 トレード記録を編集";
             document.getElementById('submitBtn').innerText = "修正内容を更新する";
 
-            document.getElementById('tradeDate').value = target.date;
-            document.getElementById('tradeTime').value = target.time;
-            document.getElementById('lotInput').value = target.lot === "-" ? "" : target.lot;
-            document.getElementById('pipsInput').value = target.pips;
-            document.getElementById('pnlInput').value = target.pnl;
-            document.getElementById('memoInput').value = target.memo === "-" ? "" : target.memo;
+            document.getElementById('tradeDate').value = t.date;
+            document.getElementById('tradeTime').value = t.time;
+            document.getElementById('openPriceInput').value = t.openPrice === "-" ? "" : t.openPrice;
+            document.getElementById('closePriceInput').value = t.closePrice === "-" ? "" : t.closePrice;
+            document.getElementById('tpPriceInput').value = t.tpPrice === "-" ? "" : t.tpPrice;
+            document.getElementById('slPriceInput').value = t.slPrice === "-" ? "" : t.slPrice;
+            document.getElementById('lotInput').value = t.lot === "-" ? "" : t.lot;
+            document.getElementById('pipsInput').value = t.pips;
+            document.getElementById('pnlInput').value = t.pnl;
+            document.getElementById('memoInput').value = t.memo === "-" ? "" : t.memo;
 
-            // 各種ボタングループの復元
-            activateButtonInGroup('marketGroup', target.market);
-            activateButtonInGroup('sideGroup', target.side);
-            activateButtonInGroup('resultGroup', target.result);
-            activateButtonInGroup('emotionGroup', target.emotion);
+            activateButtonInGroup('marketGroup', t.market);
+            activateButtonInGroup('monthlyGroup', t.monthly);
+            activateButtonInGroup('weeklyGroup', t.weekly);
+            activateButtonInGroup('dailyGroup', t.daily);
+            activateButtonInGroup('biasGroup', t.bias);
+            activateButtonInGroup('sideGroup', t.side);
+            activateButtonInGroup('resultGroup', t.result);
+            activateButtonInGroup('emotionGroup', t.emotion);
 
-            // 通貨ペアの復元
             const basePairs = ["XAUUSD", "BTCUSD", "OIL", "USDJPY", "EURUSD", "AUDJPY", "AUDUSD", "EURJPY"];
-            if (basePairs.includes(target.pair)) {
-                activateButtonInGroup('pairGroup', target.pair);
+            if (basePairs.includes(t.pair)) {
+                activateButtonInGroup('pairGroup', t.pair);
                 document.getElementById('customPairInput').style.display = "none";
             } else {
                 activateButtonInGroup('pairGroup', "その他");
                 const customInput = document.getElementById('customPairInput');
                 customInput.style.display = "block";
-                customInput.value = target.pair;
+                customInput.value = t.pair;
             }
 
-            // 記録タブへジャンプさせます
             switchTab('record');
-            // 上部へスクロール
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 表示の更新処理
+        // 一覧・統計の表示リフレッシュ
         function refreshApp() {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
             document.getElementById('totalCountText').innerText = `${trades.length} 件の記録`;
@@ -692,15 +804,28 @@
                     if (t.pnl > 0) pnlColor = 'var(--color-win)';
                     if (t.pnl < 0) pnlColor = 'var(--color-lose)';
 
+                    let envStr = "";
+                    if(t.monthly && t.monthly !== "-") envStr += `月:${t.monthly} `;
+                    if(t.weekly && t.weekly !== "-") envStr += `週:${t.weekly} `;
+                    if(t.daily && t.daily !== "-") envStr += `日:${t.daily} `;
+                    if(t.bias && t.bias !== "-") envStr += `目線:${t.bias}`;
+
                     card.innerHTML = `
                         <div class="card-row1">
                             <span>📅 ${t.date} ${t.time} (${t.market}市場)</span>
-                            <span>🧠 感情: ${t.emotion}</span>
+                            <span>🧠 感情: ${t.emotion || "-"}</span>
                         </div>
                         <div class="card-row2">
-                            <span class="badge ${t.side}">${t.side === 'Long' ? 'ロング' : 'ショート'}</span>
-                            <span class="badge ${t.result}">${t.result}</span>
+                            ${t.side && t.side !== "-" ? `<span class="badge ${t.side}">${t.side === 'Long' ? 'ロング' : 'ショート'}</span>` : ''}
+                            ${t.result && t.result !== "-" ? `<span class="badge ${t.result}">${t.result}</span>` : ''}
                             <span class="card-pair">${t.pair}</span>
+                            ${envStr ? `<span class="badge env">${envStr}</span>` : ''}
+                        </div>
+                        <div class="card-prices">
+                            <span>Open: ${t.openPrice}</span>
+                            <span>Close: ${t.closePrice}</span>
+                            <span>TP: ${t.tpPrice}</span>
+                            <span>SL: ${t.slPrice}</span>
                         </div>
                         <div class="card-metrics">
                             <div>ロット: <span style="font-weight:bold;">${t.lot}</span></div>
@@ -721,7 +846,6 @@
             calculateStatistics(trades);
         }
 
-        // 1つのトレードを削除
         function deleteTrade(id) {
             if(confirm("このトレード記録を削除してもよろしくて？")) {
                 let trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
@@ -731,7 +855,7 @@
             }
         }
 
-        // 統計計算処理
+        // 統計計算
         function calculateStatistics(trades) {
             const total = trades.length;
             document.getElementById('statTotalTrades').innerText = total;
@@ -748,7 +872,7 @@
 
             let wins = 0, loses = 0, draws = 0;
             let totalPnl = 0, totalPips = 0;
-            let emotions = { 冷静: 0, 焦り: 0, 不安: 0 };
+            let emotions = { 冷静: 0, 焦り: 0, 不安: 0, "-": 0 };
             let pairs = {};
 
             trades.forEach(t => {
@@ -781,11 +905,14 @@
 
             const emotionContainer = document.getElementById('emotionStatList');
             emotionContainer.innerHTML = "";
+            let validEmotionTotal = total - emotions["-"];
             for (let key in emotions) {
-                const rate = ((emotions[key] / total) * 100).toFixed(1);
+                if(key === "-") continue;
+                const count = emotions[key];
+                const rate = validEmotionTotal > 0 ? ((count / validEmotionTotal) * 100).toFixed(1) : "0.0";
                 const item = document.createElement('div');
                 item.className = 'stat-item';
-                item.innerHTML = `<span>${key}</span><span>${rate}% (${emotions[key]}回)</span>`;
+                item.innerHTML = `<span>${key}</span><span>${rate}% (${count}回)</span>`;
                 emotionContainer.appendChild(item);
             }
 
@@ -810,11 +937,12 @@
             if(trades.length === 0) { alert("出力するデータがありませんわ。"); return; }
 
             let csvContent = "\uFEFF"; 
-            csvContent += "日にち,時間,市場,通貨ペア,売買,結果,ロット,獲得PIPS,損益額USD,感情,メモ\n";
+            csvContent += "日にち,時間,市場,通貨ペア,月足,週足,日足,目線,売買,結果,Open,Close,TP,SL,ロット,獲得PIPS,損益額USD,感情,メモ\n";
 
             trades.forEach(t => {
                 const row = [
-                    t.date, t.time, t.market, t.pair, t.side, t.result, t.lot, t.pips, t.pnl, t.emotion, `"${t.memo.replace(/"/g, '""')}"`
+                    t.date, t.time, t.market, t.pair, t.monthly, t.weekly, t.daily, t.bias, t.side, t.result,
+                    t.openPrice, t.closePrice, t.tpPrice, t.slPrice, t.lot, t.pips, t.pnl, t.emotion, `"${t.memo.replace(/"/g, '""')}"`
                 ].join(",");
                 csvContent += row + "\n";
             });
@@ -829,42 +957,31 @@
             document.body.removeChild(link);
         }
 
-        // テキストコピー型エクスポート
         function exportToText() {
             const trades = localStorage.getItem('dark_trades');
             if(!trades || trades === "[]") { alert("出力するデータがありませんわ。"); return; }
-
             navigator.clipboard.writeText(trades).then(() => {
-                alert("バックアップ用テキストをクリップボードにコピーしましたわ！メモ帳などに貼り付けて保管してくださいね。");
-            }).catch(err => {
-                alert("コピーに失敗しました。以下のテキストを全てコピーしてください：\n\n" + trades);
+                alert("テキストをコピーしましたわ！");
             });
         }
 
-        // テキストからの復元
         function importFromText() {
-            const jsonText = prompt("過去にバックアップしたテキストデータをここに貼り付けてくださいわ。");
+            const jsonText = prompt("データをここに貼り付けてくださいわ。");
             if(!jsonText) return;
-
             try {
                 const parsed = JSON.parse(jsonText);
                 if (Array.isArray(parsed)) {
-                    if(confirm("データを上書き復元してもよろしくて？（現在の記録は上書き消去されます）")) {
+                    if(confirm("データを上書き復元してもよろしくて？")) {
                         localStorage.setItem('dark_trades', JSON.stringify(parsed));
                         refreshApp();
-                        alert("復元が完了いたしましたわ！");
+                        alert("復元完了いたしましたわ！");
                     }
-                } else {
-                    alert("データの形式が正しくありませんわ。");
                 }
-            } catch(e) {
-                alert("データの読み込みに失敗しました。正しいテキストを入力してくださいね。");
-            }
+            } catch(e) { alert("失敗しました。"); }
         }
 
-        // 全消去
         function clearAllData() {
-            if(confirm("本当に全てのトレード記録を完全に削除しますの？この操作は取り消せる機能がありませんわ。")) {
+            if(confirm("本当に全て削除しますの？")) {
                 localStorage.removeItem('dark_trades');
                 refreshApp();
             }
