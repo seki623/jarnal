@@ -16,7 +16,7 @@
             
             /* ご指定のアクセントカラー */
             --color-long: #3182ce;   /* ロング：青 */
-            --color-short: #e53e3e;  /* ショート：赤（ショートも分かりやすく赤系統にしています） */
+            --color-short: #e53e3e;  /* ショート：赤 */
             --color-win: #38a169;    /* 勝ち：緑 */
             --color-lose: #e53e3e;   /* 負け：赤 */
             --color-draw: #718096;   /* 建値：グレー */
@@ -67,7 +67,7 @@
             max-width: 600px;
             width: 100%;
             box-sizing: border-box;
-            display: none; /* 初期状態は非表示、JSで切り替え */
+            display: none;
         }
         .container.active {
             display: block;
@@ -94,7 +94,7 @@
             color: var(--text-muted);
         }
 
-        /* 入力エリア（テキスト、数値、カレンダー、メモ） */
+        /* 入力エリア */
         input[type="text"], input[type="number"], input[type="date"], textarea {
             width: 100%;
             padding: 12px;
@@ -116,7 +116,7 @@
             margin-bottom: 0;
         }
 
-        /* --- 選択ボタン（文字が入っていて押す形式）のスタイル --- */
+        /* 選択ボタンのスタイル */
         .btn-group {
             display: flex;
             flex-wrap: wrap;
@@ -136,9 +136,7 @@
             transition: all 0.2s;
             text-align: center;
         }
-        .select-btn:hover {
-            opacity: 0.8;
-        }
+        .select-btn:hover { opacity: 0.8; }
 
         /* ボタンが選択された際の色指定 */
         .select-btn.active[data-type="pair"],
@@ -148,15 +146,11 @@
         .select-btn.active[data-val="勝ち"] { background-color: var(--color-win); border-color: #68d391; }
         .select-btn.active[data-val="負け"] { background-color: var(--color-lose); border-color: #fc8181; }
         .select-btn.active[data-val="建値"] { background-color: var(--color-draw); border-color: #cbd5e0; }
-        .select-btn.active[data-type="emotion"] { background-color: #b7791f; border-color: #ecc94b; } /* 感情は黄色ゴールド系 */
+        .select-btn.active[data-type="emotion"] { background-color: #b7791f; border-color: #ecc94b; }
 
-        /* その他枠用の手入力インプット */
-        #customPairInput {
-            margin-top: 8px;
-            display: none;
-        }
+        #customPairInput { margin-top: 8px; display: none; }
 
-        /* 実行系・システム系ボタン */
+        /* 実行系ボタン */
         .action-btn {
             background-color: var(--color-long);
             color: white;
@@ -171,7 +165,7 @@
         }
         .action-btn:hover { opacity: 0.9; }
 
-        /* 時間変換エリア専用スタイル */
+        /* 時間変換エリア */
         .convert-box {
             background-color: #1a202c;
             padding: 15px;
@@ -203,20 +197,18 @@
             color: white;
             border: none;
             padding: 8px 16px;
-            font-radius: 4px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
         }
 
-        /* トレード記録カード（一覧用） */
+        /* トレード記録カード */
         .trade-card {
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
-            position: relative;
         }
         .card-row1 { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
         .card-row2 { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
@@ -228,8 +220,26 @@
         .badge.建値 { background-color: var(--color-draw); }
         .card-pair { font-size: 18px; font-weight: bold; }
         .card-metrics { display: flex; gap: 15px; font-size: 14px; margin-bottom: 10px; background: #121212; padding: 8px; border-radius: 4px; }
-        .card-memo { font-size: 13px; color: #dddddd; border-top: 1px solid #333; padding-top: 8px; word-break: break-all; }
-        .delete-btn { position: absolute; right: 15px; top: 15px; background: none; border: none; color: var(--color-lose); cursor: pointer; font-size: 13px; }
+        .card-memo { font-size: 13px; color: #dddddd; border-top: 1px solid #333; padding-top: 8px; word-break: break-all; margin-bottom: 10px; }
+        
+        /* カード右下の操作ボタンエリア */
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px dashed #333;
+            padding-top: 8px;
+        }
+        .card-op-btn {
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .card-op-btn.edit { color: var(--color-long); }
+        .card-op-btn.delete { color: var(--color-lose); }
 
         /* バックアップセクション */
         .backup-section {
@@ -283,15 +293,14 @@
 <body>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('record')">記録</button>
-        <button class="tab-btn" onclick="switchTab('list')">一覧</button>
-        <button class="tab-btn" onclick="switchTab('stats')">統計</button>
+        <button id="btn-tab-record" class="tab-btn active" onclick="switchTab('record')">記録</button>
+        <button id="btn-tab-list" class="tab-btn" onclick="switchTab('list')">一覧</button>
+        <button id="btn-tab-stats" class="tab-btn" onclick="switchTab('stats')">統計</button>
     </div>
 
     <div id="tab-record" class="container active">
-        <h1>📊 新規トレード記録</h1>
-        
-        <div class="flex-row">
+        <h1 id="formTitle">📊 新規トレード記録</h1>
+        <input type="hidden" id="editingId" value=""> <div class="flex-row">
             <div class="form-group">
                 <label>日にち</label>
                 <input type="date" id="tradeDate">
@@ -385,13 +394,13 @@
             <textarea id="memoInput" placeholder="エントリーした環境認識や、トレード後の反省など..."></textarea>
         </div>
 
-        <button type="button" class="action-btn" onclick="saveTradeLog()">このトレードを保存する</button>
+        <button type="button" class="action-btn" id="submitBtn" onclick="saveTradeLog()">このトレードを保存する</button>
     </div>
 
     <div id="tab-list" class="container">
         <div class="list-header">
             <div class="count-text" id="totalCountText">0 件の記録</div>
-            <button class="nav-trigger-btn" onclick="switchTab('record')">＋ 新規記録</button>
+            <button class="nav-trigger-btn" onclick="clearFormAndGoToRecord()">＋ 新規記録</button>
         </div>
 
         <div id="cardContainer"></div>
@@ -430,18 +439,14 @@
         </div>
 
         <h2>🧠 感情トレード率</h2>
-        <div class="stat-list" id="emotionStatList">
-            </div>
+        <div class="stat-list" id="emotionStatList"></div>
 
         <h2>💱 通貨ペア別成績</h2>
-        <div class="stat-list" id="pairStatList">
-            </div>
+        <div class="stat-list" id="pairStatList"></div>
     </div>
 
     <script>
-        // アプリ起動時の処理
         window.onload = function() {
-            // カレンダーの初期値に今日のシステム日付をセット
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('tradeDate').value = today;
             
@@ -455,14 +460,20 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            event.currentTarget.classList.add('active');
+            document.getElementById(`btn-tab-${tabName}`).classList.add('active');
 
             if(tabName === 'list' || tabName === 'stats') {
                 refreshApp();
             }
         }
 
-        // ボタン選択の挙動設定（押したら他のボタンを消してactiveにする）
+        // 新規追加のためにフォームを綺麗にしてからタブを移る
+        function clearFormAndGoToRecord() {
+            setFormToNewMode();
+            switchTab('record');
+        }
+
+        // ボタングループのactiveクラス管理
         function setupButtonGroups() {
             document.querySelectorAll('.btn-group').forEach(group => {
                 group.addEventListener('click', e => {
@@ -470,7 +481,6 @@
                         group.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
                         e.target.classList.add('active');
                         
-                        // 「その他」の通貨ペアが選ばれた時の手入力枠の出し入れ
                         if (e.target.getAttribute('data-type') === 'pair') {
                             const customInput = document.getElementById('customPairInput');
                             if (e.target.getAttribute('data-val') === 'その他') {
@@ -484,7 +494,19 @@
             });
         }
 
-        // --- 時間変換 ＆ 市場自動判別ロジック ---
+        // 汎用ボタンアクティブ化用
+        function activateButtonInGroup(groupId, value) {
+            const group = document.getElementById(groupId);
+            group.querySelectorAll('.select-btn').forEach(btn => {
+                if(btn.getAttribute('data-val') === value) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // 時間変換 ＆ 市場自動判別
         function runTimeConverter() {
             const timeStr = document.getElementById('foreignTimeInput').value.trim();
             const isSummer = document.getElementById('isSummerTime').checked;
@@ -496,30 +518,20 @@
             }
 
             const [hours, minutes] = timeStr.split(':').map(Number);
-            
-            // 海外時間から日本時間への変換（+6時間）
             let jstHours = (hours + 6) % 24;
-            
             const formattedTime = `${String(jstHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
             document.getElementById('tradeTime').value = formattedTime;
 
-            // 市場の自動割り当てロジック
             let market = "";
-            
-            // 夏時間・冬時間による市場時間の定義分け
             let asiaStart = 8, asiaEnd = 16;
             let lonStart = isSummer ? 15 : 16;
             let lonEnd = isSummer ? 23 : 24;
-            let nyStart = isSummer ? 23 : 24;
-            let nyEnd = isSummer ? 6 : 7; // 翌日
 
-            // 判定処理
             if (jstHours >= asiaStart && jstHours < asiaEnd) {
                 market = "アジア";
             } else if (jstHours >= lonStart && jstHours < lonEnd) {
                 market = "ロンドン";
             } else {
-                // ニューヨーク市場判定 (24:00〜7:00 / 23:00〜6:00 の跨ぎ対応)
                 if (isSummer) {
                     if (jstHours >= 23 || jstHours < 6) market = "ニューヨーク";
                 } else {
@@ -527,26 +539,16 @@
                 }
             }
 
-            // もしどれにも引っかからなかった場合の安全網
             if(!market) market = "アジア"; 
-
-            // 市場ボタンに自動チェックを入れる
-            const marketGroup = document.getElementById('marketGroup');
-            marketGroup.querySelectorAll('.select-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('data-val') === market) {
-                    btn.classList.add('active');
-                }
-            });
+            activateButtonInGroup('marketGroup', market);
         }
 
-        // アクティブなボタングループの選択値を取得する関数
         function getSelectedVal(groupId) {
             const activeBtn = document.querySelector(`#${groupId} .select-btn.active`);
             return activeBtn ? activeBtn.getAttribute('data-val') : null;
         }
 
-        // --- データ保存処理 ---
+        // --- データ保存・更新処理 ---
         function saveTradeLog() {
             const date = document.getElementById('tradeDate').value;
             const time = document.getElementById('tradeTime').value.trim();
@@ -559,37 +561,62 @@
             const pnl = document.getElementById('pnlInput').value;
             const emotion = getSelectedVal('emotionGroup');
             const memo = document.getElementById('memoInput').value.trim();
+            const editingId = document.getElementById('editingId').value;
 
-            if (pair === 'その他') {
+            const isCustomPair = (pair === 'その他');
+            if (isCustomPair) {
                 pair = document.getElementById('customPairInput').value.trim();
             }
 
-            // 必須チェック
             if (!date || !time || !pair || !side || !result || !emotion) {
                 alert("日にち、時間、通貨ペア、売買、結果、感情は必ず選択・入力してくださいね。");
                 return;
             }
 
-            const newLog = {
-                id: Date.now(),
-                date: date,
-                time: time,
-                market: market || "未設定",
-                pair: pair,
-                side: side,
-                result: result,
-                lot: lot ? parseFloat(lot) : "-",
-                pips: pips ? parseFloat(pips) : 0,
-                pnl: pnl ? parseFloat(pnl) : 0,
-                emotion: emotion,
-                memo: memo || "-"
-            };
-
             let trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
-            trades.unshift(newLog);
-            localStorage.setItem('dark_trades', JSON.stringify(trades));
 
-            // フォームの初期化（入力内容のリセット）
+            if (editingId) {
+                // 【編集モード】の時：既存のデータを書き換えます
+                trades = trades.map(t => {
+                    if (t.id === parseInt(editingId)) {
+                        return {
+                            ...t,
+                            date, time, market: market || "未設定", pair, side, result,
+                            lot: lot ? parseFloat(lot) : "-",
+                            pips: pips ? parseFloat(pips) : 0,
+                            pnl: pnl ? parseFloat(pnl) : 0,
+                            emotion, memo: memo || "-"
+                        };
+                    }
+                    return t;
+                });
+                alert("記録を更新いたしましたわ！");
+            } else {
+                // 【新規追加モード】の時：新しく先頭にデータを足します
+                const newLog = {
+                    id: Date.now(),
+                    date, time, market: market || "未設定", pair, side, result,
+                    lot: lot ? parseFloat(lot) : "-",
+                    pips: pips ? parseFloat(pips) : 0,
+                    pnl: pnl ? parseFloat(pnl) : 0,
+                    emotion, memo: memo || "-"
+                };
+                trades.unshift(newLog);
+                alert("トレードを保存いたしましたわ！");
+            }
+
+            localStorage.setItem('dark_trades', JSON.stringify(trades));
+            setFormToNewMode();
+            refreshApp();
+            switchTab('list');
+        }
+
+        // フォームの状態を「新規追加用」に戻す関数
+        function setFormToNewMode() {
+            document.getElementById('editingId').value = "";
+            document.getElementById('formTitle').innerText = "📊 新規トレード記録";
+            document.getElementById('submitBtn').innerText = "このトレードを保存する";
+
             document.getElementById('tradeTime').value = "";
             document.getElementById('foreignTimeInput').value = "";
             document.getElementById('lotInput').value = "";
@@ -597,20 +624,60 @@
             document.getElementById('pnlInput').value = "";
             document.getElementById('memoInput').value = "";
             document.getElementById('customPairInput').value = "";
+            document.getElementById('customPairInput').style.display = "none";
             document.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
             
-            alert("トレードを保存いたしましたわ！");
-            refreshApp();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tradeDate').value = today;
         }
 
-        // 一覧と統計の表示を最新状態にする
+        // --- 編集モードへの切り替え ---
+        function editTrade(id) {
+            const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
+            const target = trades.find(t => t.id === id);
+            if (!target) return;
+
+            // フォームへ現在の値を復元しますわ
+            document.getElementById('editingId').value = target.id;
+            document.getElementById('formTitle').innerText = "🔧 トレード記録を編集";
+            document.getElementById('submitBtn').innerText = "修正内容を更新する";
+
+            document.getElementById('tradeDate').value = target.date;
+            document.getElementById('tradeTime').value = target.time;
+            document.getElementById('lotInput').value = target.lot === "-" ? "" : target.lot;
+            document.getElementById('pipsInput').value = target.pips;
+            document.getElementById('pnlInput').value = target.pnl;
+            document.getElementById('memoInput').value = target.memo === "-" ? "" : target.memo;
+
+            // 各種ボタングループの復元
+            activateButtonInGroup('marketGroup', target.market);
+            activateButtonInGroup('sideGroup', target.side);
+            activateButtonInGroup('resultGroup', target.result);
+            activateButtonInGroup('emotionGroup', target.emotion);
+
+            // 通貨ペアの復元
+            const basePairs = ["XAUUSD", "BTCUSD", "OIL", "USDJPY", "EURUSD", "AUDJPY", "AUDUSD", "EURJPY"];
+            if (basePairs.includes(target.pair)) {
+                activateButtonInGroup('pairGroup', target.pair);
+                document.getElementById('customPairInput').style.display = "none";
+            } else {
+                activateButtonInGroup('pairGroup', "その他");
+                const customInput = document.getElementById('customPairInput');
+                customInput.style.display = "block";
+                customInput.value = target.pair;
+            }
+
+            // 記録タブへジャンプさせます
+            switchTab('record');
+            // 上部へスクロール
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 表示の更新処理
         function refreshApp() {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
-            
-            // 1. 件数表示の更新
             document.getElementById('totalCountText').innerText = `${trades.length} 件の記録`;
 
-            // 2. 一覧カードの描画
             const cardContainer = document.getElementById('cardContainer');
             cardContainer.innerHTML = "";
 
@@ -621,13 +688,11 @@
                     const card = document.createElement('div');
                     card.className = 'trade-card';
                     
-                    // 損益額のプラスマイナス色判定
                     let pnlColor = 'var(--text-color)';
                     if (t.pnl > 0) pnlColor = 'var(--color-win)';
                     if (t.pnl < 0) pnlColor = 'var(--color-lose)';
 
                     card.innerHTML = `
-                        <button class="delete-btn" onclick="deleteTrade(${t.id})">削除</button>
                         <div class="card-row1">
                             <span>📅 ${t.date} ${t.time} (${t.market}市場)</span>
                             <span>🧠 感情: ${t.emotion}</span>
@@ -643,12 +708,16 @@
                             <div>損益: <span style="font-weight:bold; color:${pnlColor}">${t.pnl} USD</span></div>
                         </div>
                         <div class="card-memo">${t.memo.replace(/\n/g, '<br>')}</div>
+                        
+                        <div class="card-footer">
+                            <button class="card-op-btn edit" onclick="editTrade(${t.id})">🔧 編集</button>
+                            <button class="card-op-btn delete" onclick="deleteTrade(${t.id})">🗑️ 削除</button>
+                        </div>
                     `;
                     cardContainer.appendChild(card);
                 });
             }
 
-            // 3. 統計データの計算
             calculateStatistics(trades);
         }
 
@@ -662,7 +731,7 @@
             }
         }
 
-        // --- 統計計算システム ---
+        // 統計計算処理
         function calculateStatistics(trades) {
             const total = trades.length;
             document.getElementById('statTotalTrades').innerText = total;
@@ -683,19 +752,15 @@
             let pairs = {};
 
             trades.forEach(t => {
-                // 勝敗カウント
                 if (t.result === '勝ち') wins++;
                 else if (t.result === '負け') loses++;
                 else if (t.result === '建値') draws++;
 
-                // 累計
                 totalPnl += t.pnl;
                 totalPips += t.pips;
 
-                // 感情カウント
                 if(emotions[t.emotion] !== undefined) emotions[t.emotion]++;
 
-                // 通貨ペア別成績初期化・カウント
                 if(!pairs[t.pair]) {
                     pairs[t.pair] = { total: 0, wins: 0, loses: 0, draws: 0 };
                 }
@@ -705,7 +770,6 @@
                 else if (t.result === '建値') pairs[t.pair].draws++;
             });
 
-            // メトリクス表示更新
             const winRate = ((wins / (wins + loses || 1)) * 100).toFixed(1);
             document.getElementById('statWinRate').innerText = `${winRate}%`;
             document.getElementById('statWLD').innerText = `${wins}勝 ${loses}敗 ${draws}分`;
@@ -715,7 +779,6 @@
             document.getElementById('statTotalPips').innerText = `${totalPips.toFixed(1)} pips`;
             document.getElementById('statTotalPips').style.color = totalPips >= 0 ? 'var(--color-win)' : 'var(--color-lose)';
 
-            // 感情トレード率の描画
             const emotionContainer = document.getElementById('emotionStatList');
             emotionContainer.innerHTML = "";
             for (let key in emotions) {
@@ -726,7 +789,6 @@
                 emotionContainer.appendChild(item);
             }
 
-            // 通貨ペア成績の描画
             const pairContainer = document.getElementById('pairStatList');
             pairContainer.innerHTML = "";
             for (let p in pairs) {
@@ -742,14 +804,12 @@
             }
         }
 
-        // --- データエクスポート・インポート機能 ---
-        
-        // 1. CSVエクスポート
+        // CSV出力
         function exportToCSV() {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
             if(trades.length === 0) { alert("出力するデータがありませんわ。"); return; }
 
-            let csvContent = "\uFEFF"; // Excelの文字化けを防ぐBOMコードですわ
+            let csvContent = "\uFEFF"; 
             csvContent += "日にち,時間,市場,通貨ペア,売買,結果,ロット,獲得PIPS,損益額USD,感情,メモ\n";
 
             trades.forEach(t => {
@@ -769,7 +829,7 @@
             document.body.removeChild(link);
         }
 
-        // 2. テキストコピー型エクスポート
+        // テキストコピー型エクスポート
         function exportToText() {
             const trades = localStorage.getItem('dark_trades');
             if(!trades || trades === "[]") { alert("出力するデータがありませんわ。"); return; }
@@ -781,7 +841,7 @@
             });
         }
 
-        // 3. テキストからの復元（インポート）
+        // テキストからの復元
         function importFromText() {
             const jsonText = prompt("過去にバックアップしたテキストデータをここに貼り付けてくださいわ。");
             if(!jsonText) return;
@@ -804,7 +864,7 @@
 
         // 全消去
         function clearAllData() {
-            if(confirm("本当に全てのトレード記録を完全に削除しますの？この操作は取り消せませんわ。")) {
+            if(confirm("本当に全てのトレード記録を完全に削除しますの？この操作は取り消せる機能がありませんわ。")) {
                 localStorage.removeItem('dark_trades');
                 refreshApp();
             }
