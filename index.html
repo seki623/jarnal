@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Trade Log Premium</title>
+    <title>Trade Log </title>
     <style>
         /* 基本のカラー設定：背景は黒、基本文字は白 */
         :root {
@@ -19,8 +19,8 @@
             --color-yin: #e53e3e;     /* 陰線：赤 */
             
             --color-long: #3182ce;    /* ロング：青 */
-            --color-short: #e53e3e;   /* ショート：赤 (陰線と統一) */
-            --color-win: #38a169;     /* 勝ち：緑 (陽線と統一) */
+            --color-short: #e53e3e;   /* ショート：赤 */
+            --color-win: #38a169;     /* 勝ち：緑 */
             --color-lose: #e53e3e;    /* 負け：赤 */
             --color-draw: #718096;    /* 建値：グレー */
         }
@@ -142,7 +142,7 @@
         }
         .select-btn:hover { opacity: 0.8; }
 
-        /* ボタン選択時のアクティブカラー（陽線＝緑 / 陰線＝赤） */
+        /* ボタン選択時のアクティブカラー */
         .select-btn.active[data-type="pair"],
         .select-btn.active[data-type="market"] { background-color: #4a5568; border-color: #a0aec0; }
         .select-btn.active[data-val="Long"] { background-color: var(--color-long); border-color: #63b3ed; }
@@ -152,7 +152,7 @@
         .select-btn.active[data-val="建値"] { background-color: var(--color-draw); border-color: #cbd5e0; }
         .select-btn.active[data-type="emotion"] { background-color: #b7791f; border-color: #ecc94b; }
         
-        /* 環境認識・目線用カラー指定（ご希望の配色へ統一） */
+        /* 環境認識・目線用カラー指定 */
         .select-btn.active[data-val="陽線"] { background-color: var(--color-yang); border-color: #68d391; }
         .select-btn.active[data-val="陰線"] { background-color: var(--color-yin); border-color: #fc8181; }
         .select-btn.active[data-val="ロング"] { background-color: var(--color-long); border-color: #63b3ed; }
@@ -193,6 +193,20 @@
         }
         .switch-label input { margin-right: 5px; }
 
+        /* リアルタイムRR計算インジケータ（入力画面用） */
+        .rr-indicator {
+            background-color: #111;
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #ccc;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+        }
+
         /* 一覧・件数表示用ヘッダー */
         .list-header {
             display: flex;
@@ -231,9 +245,12 @@
         .badge.建値 { background-color: var(--color-draw); }
         .badge.env { background-color: #4a5568; color: #e2e8f0; }
         .card-pair { font-size: 18px; font-weight: bold; margin-right: 5px; }
-        .card-metrics { display: flex; gap: 15px; font-size: 13px; margin-bottom: 8px; background: #121212; padding: 8px; border-radius: 4px; flex-wrap: wrap; }
-        .card-prices { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); margin-bottom: 10px; padding: 0 4px; flex-wrap: wrap; }
-        .card-memo { font-size: 13px; color: #dddddd; border-top: 1px solid #333; padding-top: 8px; word-break: break-all; margin-bottom: 10px; }
+        
+        /* 共通スタイル：半角スペース2つのため、空白が綺麗に維持されるように設定 */
+        .card-line-prices { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 8px; white-space: pre-wrap; word-break: break-all; }
+        .card-line-metrics { font-size: 13px; color: var(--text-color); margin-bottom: 6px; white-space: pre-wrap; word-break: break-all; }
+        
+        .card-memo { font-size: 13px; color: #dddddd; padding-top: 4px; word-break: break-all; margin-bottom: 10px; }
         
         /* カード操作ボタンエリア */
         .card-footer {
@@ -318,7 +335,7 @@
         <div class="flex-row">
             <div class="form-group">
                 <label>日にち</label>
-                <input type="date" id="tradeDate">
+                <input type="date" id="tradeDate" onchange="updateDstDefault()">
             </div>
             <div class="form-group">
                 <label>日本時間 (JST)</label>
@@ -333,7 +350,7 @@
                 <button type="button" class="action-btn" onclick="runTimeConverter()" style="margin:0; width:auto; padding:0 15px;">変換</button>
             </div>
             <label class="switch-label">
-                <input type="checkbox" id="isSummerTime"> ▢ 夏時間（サマータイム適用時はチェック）
+                <input type="checkbox" id="isSummerTime">夏時間
             </label>
         </div>
 
@@ -416,36 +433,41 @@
         <div class="flex-row">
             <div class="form-group">
                 <label>Open 価格</label>
-                <input type="number" id="openPriceInput" step="any" placeholder="例: 3000.00" oninput="autoCalculatePips()">
+                <input type="number" id="openPriceInput" step="any" placeholder="例: 3000.00" oninput="autoCalculateAllMetrics()">
             </div>
             <div class="form-group">
                 <label>Close 価格</label>
-                <input type="number" id="closePriceInput" step="any" placeholder="例: 3010.50" oninput="autoCalculatePips()">
+                <input type="number" id="closePriceInput" step="any" placeholder="例: 3010.50" oninput="autoCalculateAllMetrics()">
             </div>
         </div>
         <div class="flex-row">
             <div class="form-group">
                 <label>TP 価格</label>
-                <input type="number" id="tpPriceInput" step="any" placeholder="例: 3050.00">
+                <input type="number" id="tpPriceInput" step="any" placeholder="例: 3050.00" oninput="autoCalculateAllMetrics()">
             </div>
             <div class="form-group">
                 <label>SL 価格</label>
-                <input type="number" id="slPriceInput" step="any" placeholder="例: 2980.00">
+                <input type="number" id="slPriceInput" step="any" placeholder="例: 2980.00" oninput="autoCalculateAllMetrics()">
             </div>
+        </div>
+
+        <div class="rr-indicator" id="liveRrBox">
+            <span>想定 RR 1 : --</span>
+            <span>実際 RR 1 : --</span>
         </div>
 
         <div class="flex-row">
             <div class="form-group">
                 <label>ロット数</label>
-                <input type="number" id="lotInput" step="any" placeholder="0.1" oninput="autoCalculatePips()">
+                <input type="number" id="lotInput" step="any" placeholder="0.1" oninput="autoCalculateAllMetrics()">
             </div>
             <div class="form-group">
-                <label>獲得PIPS (自動計算・手動可)</label>
-                <input type="number" id="pipsInput" step="any" placeholder="自動計算されます">
+                <label>獲得PIPS</label>
+                <input type="number" id="pipsInput" step="any" placeholder="自動計算されます" oninput="autoCalculateAllMetrics()">
             </div>
             <div class="form-group">
-                <label>損益額 (USD)</label>
-                <input type="number" id="pnlInput" step="any" placeholder="50">
+                <label>損益額 (USD) (自動計算)</label>
+                <input type="number" id="pnlInput" step="any" placeholder="自動計算されます">
             </div>
         </div>
 
@@ -460,7 +482,7 @@
 
         <div class="form-group">
             <label>メモ（根拠や反省点）</label>
-            <textarea id="memoInput" placeholder="エントリーした環境認識や、トレード後の反省など..."></textarea>
+            <textarea id="memoInput" placeholder="エントリーした環境認識や、トレード後の反省etc"></textarea>
         </div>
 
         <button type="button" class="action-btn" id="submitBtn" onclick="saveTradeLog()">このトレードを保存する</button>
@@ -507,7 +529,7 @@
             </div>
         </div>
 
-        <h2>🧠 感情トレード率</h2>
+        <h2>😊 感情トレード率</h2>
         <div class="stat-list" id="emotionStatList"></div>
 
         <h2>💱 通貨ペア別成績</h2>
@@ -515,15 +537,46 @@
     </div>
 
     <script>
+        let currentCalculatedRr = { targetRr: "--", actualRr: "--" };
+
         window.onload = function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('tradeDate').value = today;
             
+            updateDstDefault(); 
             setupButtonGroups();
             refreshApp();
         };
 
-        // タブ切り替え
+        function isUSDaylightSavingTime(dateString) {
+            if (!dateString) return false;
+            const d = new Date(dateString + 'T00:00:00');
+            if (isNaN(d.getTime())) return false;
+
+            const year = d.getFullYear();
+
+            let marchSecondSunday = new Date(year, 2, 8); 
+            while (marchSecondSunday.getDay() !== 0) {
+                marchSecondSunday.setDate(marchSecondSunday.getDate() + 1);
+            }
+
+            let novemberFirstSunday = new Date(year, 10, 1); 
+            while (novemberFirstSunday.getDay() !== 0) {
+                novemberFirstSunday.setDate(novemberFirstSunday.getDate() + 1);
+            }
+
+            const targetTime = d.getTime();
+            return targetTime >= marchSecondSunday.getTime() && targetTime < novemberFirstSunday.getTime();
+        }
+
+        function updateDstDefault() {
+            const editingId = document.getElementById('editingId').value;
+            if (!editingId) {
+                const dateVal = document.getElementById('tradeDate').value;
+                document.getElementById('isSummerTime').checked = isUSDaylightSavingTime(dateVal);
+            }
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -541,12 +594,10 @@
             switchTab('record');
         }
 
-        // ボタングループ管理
         function setupButtonGroups() {
             document.querySelectorAll('.btn-group').forEach(group => {
                 group.addEventListener('click', e => {
                     if (e.target.classList.contains('select-btn')) {
-                        // トグル選択処理（未選択を許可）
                         if (e.target.classList.contains('active')) {
                             e.target.classList.remove('active');
                         } else {
@@ -563,8 +614,7 @@
                             }
                         }
 
-                        // 結果や売買などの変動で自動PIPS計算をトリガー
-                        autoCalculatePips();
+                        autoCalculateAllMetrics();
                     }
                 });
             });
@@ -582,37 +632,66 @@
             });
         }
 
-        // ─── 【修正：獲得PIPS数の自動計算ロジック (*100に変更)】 ───
-        function autoCalculatePips() {
+        function autoCalculateAllMetrics() {
             const openVal = document.getElementById('openPriceInput').value;
             const closeVal = document.getElementById('closePriceInput').value;
+            const tpVal = document.getElementById('tpPriceInput').value;
+            const slVal = document.getElementById('slPriceInput').value;
             const lotVal = document.getElementById('lotInput').value;
+            
             const result = getSelectedVal('resultGroup');
+            const side = getSelectedVal('sideGroup');
 
-            // 必須数値が揃っていない場合は計算スキップ
-            if (openVal === "" || closeVal === "" || lotVal === "") {
-                return;
+            if (openVal !== "" && closeVal !== "") {
+                const openPrice = parseFloat(openVal);
+                const closePrice = parseFloat(closeVal);
+                let pipsValue = Math.abs(closePrice - openPrice) * 10;
+                if (result === '負け') {
+                    pipsValue = -Math.abs(pipsValue);
+                }
+                document.getElementById('pipsInput').value = parseFloat(pipsValue.toFixed(2));
+
+                if (lotVal !== "") {
+                    const lot = parseFloat(lotVal);
+                    let pnlValue = pipsValue * lot * 10;
+                    document.getElementById('pnlInput').value = parseFloat(pnlValue.toFixed(2));
+                } else {
+                    document.getElementById('pnlInput').value = "";
+                }
             }
 
-            const openPrice = parseFloat(openVal);
-            const closePrice = parseFloat(closeVal);
-            const lot = parseFloat(lotVal);
+            let targetRrText = "--";
+            let actualRrText = "--";
 
-            // 絶対値の計算式を修正: |Close - Open| * (ロット数 * 100)
-            let pipsValue = Math.abs(closePrice - openPrice) * (lot * 100);
+            if (openVal !== "" && slVal !== "") {
+                const openP = parseFloat(openVal);
+                const slP = parseFloat(slVal);
+                
+                let riskWidth = (side === "Short") ? (slP - openP) : (openP - slP);
 
-            // 負けを選んだ場合はマイナスをつける
-            if (result === '負け') {
-                pipsValue = -Math.abs(pipsValue);
-            } else {
-                pipsValue = Math.abs(pipsValue);
+                if (riskWidth !== 0) {
+                    if (tpVal !== "") {
+                        const tpP = parseFloat(tpVal);
+                        let targetRewardWidth = (side === "Short") ? (openP - tpP) : (tpP - openP);
+                        targetRrText = (targetRewardWidth / riskWidth).toFixed(2);
+                    }
+                    
+                    if (closeVal !== "") {
+                        const closeP = parseFloat(closeVal);
+                        let actualRewardWidth = (side === "Short") ? (openP - closeP) : (closeP - openP);
+                        actualRrText = (actualRewardWidth / riskWidth).toFixed(2);
+                    }
+                }
             }
 
-            // 小数点第2位までに丸めて代入
-            document.getElementById('pipsInput').value = parseFloat(pipsValue.toFixed(2));
+            currentCalculatedRr = { targetRr: targetRrText, actualRr: actualRrText };
+
+            document.getElementById('liveRrBox').innerHTML = `
+                <span>想定 RR 1 : ${targetRrText}</span>
+                <span>実際 RR 1 : ${actualRrText}</span>
+            `;
         }
 
-        // 時間変換 ＆ 市場自動判別
         function runTimeConverter() {
             const timeStr = document.getElementById('foreignTimeInput').value.trim();
             const isSummer = document.getElementById('isSummerTime').checked;
@@ -654,7 +733,6 @@
             return activeBtn ? activeBtn.getAttribute('data-val') : "";
         }
 
-        // データ保存・更新
         function saveTradeLog() {
             const date = document.getElementById('tradeDate').value;
             const time = document.getElementById('tradeTime').value.trim();
@@ -692,7 +770,9 @@
                 pips: pips !== "" ? parseFloat(pips) : 0,
                 pnl: pnl !== "" ? parseFloat(pnl) : 0,
                 emotion: getSelectedVal('emotionGroup') || "-",
-                memo: document.getElementById('memoInput').value.trim() || "-"
+                memo: document.getElementById('memoInput').value.trim() || "-",
+                targetRr: currentCalculatedRr.targetRr,
+                actualRr: currentCalculatedRr.actualRr
             };
 
             let trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
@@ -738,9 +818,12 @@
             
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('tradeDate').value = today;
+            updateDstDefault(); 
+
+            currentCalculatedRr = { targetRr: "--", actualRr: "--" };
+            document.getElementById('liveRrBox').innerHTML = `<span>想定 RR 1 : --</span><span>実際 RR 1 : --</span>`;
         }
 
-        // 編集モード
         function editTrade(id) {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
             const t = trades.find(item => item.id === id);
@@ -781,11 +864,12 @@
                 customInput.value = t.pair;
             }
 
+            autoCalculateAllMetrics();
+
             switchTab('record');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 一覧・統計の表示リフレッシュ
         function refreshApp() {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
             document.getElementById('totalCountText').innerText = `${trades.length} 件の記録`;
@@ -810,10 +894,14 @@
                     if(t.daily && t.daily !== "-") envStr += `日:${t.daily} `;
                     if(t.bias && t.bias !== "-") envStr += `目線:${t.bias}`;
 
+                    const tRr = t.targetRr !== undefined ? t.targetRr : "--";
+                    const aRr = t.actualRr !== undefined ? t.actualRr : "--";
+
+                    // ご指定通り、パイプ（|）を除去して半角スペース2つ（  ）で区切る形に組替
                     card.innerHTML = `
                         <div class="card-row1">
                             <span>📅 ${t.date} ${t.time} (${t.market}市場)</span>
-                            <span>🧠 感情: ${t.emotion || "-"}</span>
+                            <span>😊 : ${t.emotion || "-"}</span>
                         </div>
                         <div class="card-row2">
                             ${t.side && t.side !== "-" ? `<span class="badge ${t.side}">${t.side === 'Long' ? 'ロング' : 'ショート'}</span>` : ''}
@@ -821,21 +909,14 @@
                             <span class="card-pair">${t.pair}</span>
                             ${envStr ? `<span class="badge env">${envStr}</span>` : ''}
                         </div>
-                        <div class="card-prices">
-                            <span>Open: ${t.openPrice}</span>
-                            <span>Close: ${t.closePrice}</span>
-                            <span>TP: ${t.tpPrice}</span>
-                            <span>SL: ${t.slPrice}</span>
-                        </div>
-                        <div class="card-metrics">
-                            <div>ロット: <span style="font-weight:bold;">${t.lot}</span></div>
-                            <div>獲得: <span style="font-weight:bold; color:${t.pips >= 0 ? 'var(--color-win)':'var(--color-lose)'}">${t.pips} pips</span></div>
-                            <div>損益: <span style="font-weight:bold; color:${pnlColor}">${t.pnl} USD</span></div>
-                        </div>
+                        
+                        <div class="card-line-prices">Open: ${t.openPrice}  Close: ${t.closePrice}  TP: ${t.tpPrice}  SL: ${t.slPrice}  RR 1 : ${tRr}</div>
+                        <div class="card-line-metrics">ロット: ${t.lot}  獲得: <span style="font-weight:bold; color:${t.pips >= 0 ? 'var(--color-win)':'var(--color-lose)'}">${t.pips} pips</span>  損益: <span style="font-weight:bold; color:${pnlColor}">${t.pnl} USD</span>  RR 1 : ${aRr}</div>
+
                         <div class="card-memo">${t.memo.replace(/\n/g, '<br>')}</div>
                         
                         <div class="card-footer">
-                            <button class="card-op-btn edit" onclick="editTrade(${t.id})">🔧 編集</button>
+                            <button class="card-op-btn edit" onclick="editTrade(${t.id})">✏️ 編集</button>
                             <button class="card-op-btn delete" onclick="deleteTrade(${t.id})">🗑️ 削除</button>
                         </div>
                     `;
@@ -855,7 +936,6 @@
             }
         }
 
-        // 統計計算
         function calculateStatistics(trades) {
             const total = trades.length;
             document.getElementById('statTotalTrades').innerText = total;
@@ -931,18 +1011,19 @@
             }
         }
 
-        // CSV出力
         function exportToCSV() {
             const trades = JSON.parse(localStorage.getItem('dark_trades')) || [];
             if(trades.length === 0) { alert("出力するデータがありませんわ。"); return; }
 
             let csvContent = "\uFEFF"; 
-            csvContent += "日にち,時間,市場,通貨ペア,月足,週足,日足,目線,売買,結果,Open,Close,TP,SL,ロット,獲得PIPS,損益額USD,感情,メモ\n";
+            csvContent += "日にち,時間,市場,通貨ペア,月足,週足,日足,目線,売買,結果,Open,Close,TP,SL,ロット,獲得PIPS,損益額USD,感情,想定RR,実際RR,メモ\n";
 
             trades.forEach(t => {
                 const row = [
                     t.date, t.time, t.market, t.pair, t.monthly, t.weekly, t.daily, t.bias, t.side, t.result,
-                    t.openPrice, t.closePrice, t.tpPrice, t.slPrice, t.lot, t.pips, t.pnl, t.emotion, `"${t.memo.replace(/"/g, '""')}"`
+                    t.openPrice, t.closePrice, t.tpPrice, t.slPrice, t.lot, t.pips, t.pnl, t.emotion,
+                    t.targetRr !== undefined ? t.targetRr : "--", t.actualRr !== undefined ? t.actualRr : "--",
+                    `"${t.memo.replace(/"/g, '""')}"`
                 ].join(",");
                 csvContent += row + "\n";
             });
