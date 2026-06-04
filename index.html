@@ -247,8 +247,8 @@
         .card-pair { font-size: 18px; font-weight: bold; margin-right: 5px; }
         
         /* 共通スタイル：半角スペース2つのため、空白が綺麗に維持されるように設定 */
-        .card-line-prices { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 8px; white-space: pre-wrap; word-break: break-all; }
-        .card-line-metrics { font-size: 13px; color: var(--text-color); margin-bottom: 6px; white-space: pre-wrap; word-break: break-all; }
+        .card-line-prices { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 8px; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
+        .card-line-metrics { font-size: 13px; color: var(--text-color); margin-bottom: 6px; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
         
         .card-memo { font-size: 13px; color: #dddddd; padding-top: 4px; word-break: break-all; margin-bottom: 10px; }
         
@@ -532,7 +532,7 @@
         <h2>😊 感情トレード率</h2>
         <div class="stat-list" id="emotionStatList"></div>
 
-        <h2>💱 通貨ペア別成績</h2>
+        <h2>💱 通学ペア別成績</h2>
         <div class="stat-list" id="pairStatList"></div>
     </div>
 
@@ -897,7 +897,6 @@
                     const tRr = t.targetRr !== undefined ? t.targetRr : "--";
                     const aRr = t.actualRr !== undefined ? t.actualRr : "--";
 
-                    // ご指定通り、パイプ（|）を除去して半角スペース2つ（  ）で区切る形に組替
                     card.innerHTML = `
                         <div class="card-row1">
                             <span>📅 ${t.date} ${t.time} (${t.market}市場)</span>
@@ -910,8 +909,8 @@
                             ${envStr ? `<span class="badge env">${envStr}</span>` : ''}
                         </div>
                         
-                        <div class="card-line-prices">Open: ${t.openPrice}  Close: ${t.closePrice}  TP: ${t.tpPrice}  SL: ${t.slPrice}  RR 1 : ${tRr}</div>
-                        <div class="card-line-metrics">ロット: ${t.lot}  獲得: <span style="font-weight:bold; color:${t.pips >= 0 ? 'var(--color-win)':'var(--color-lose)'}">${t.pips} pips</span>  損益: <span style="font-weight:bold; color:${pnlColor}">${t.pnl} USD</span>  RR 1 : ${aRr}</div>
+                        <div class="card-line-prices">Open: ${t.openPrice}  Close: ${t.closePrice}<br>TP: ${t.tpPrice}  SL: ${t.slPrice}  RR 1 : ${tRr}</div>
+                        <div class="card-line-metrics">ロット: ${t.lot}  RR 1 : ${aRr}<br>獲得: <span style="font-weight:bold; color:${t.pips >= 0 ? 'var(--color-win)':'var(--color-lose)'}">${t.pips} pips</span>  損益: <span style="font-weight:bold; color:${pnlColor}">${t.pnl} USD</span></div>
 
                         <div class="card-memo">${t.memo.replace(/\n/g, '<br>')}</div>
                         
